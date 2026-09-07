@@ -1,0 +1,74 @@
+viewer:
+  camera_pos: [1.5, 1.5, 1.5]
+  camera_lookat: [0.0, 0.0, 0.40]
+
+environment:
+  plane: true
+  gravity: [0.0, 0.0, -9.81]
+
+robots:
+  - name: "Manito"
+    urdf_path: "assets/robots/manito/manito.urdf"
+    position: [0.0, 0.0, 0.7]
+    fixed: true
+    is_main: true
+
+props:
+  - name: "Mesa Tablero"
+    urdf_path: "assets/props/table_top.urdf"
+    position: [0.0, 0.0, -0.315]
+    euler: [0.0, 0.0, 90.0]
+    surface: "smooth"
+
+  - name: "Mesa Patas"
+    urdf_path: "assets/props/table_legs.urdf"
+    position: [0.0, 0.0, -0.315]
+    euler: [0.0, 0.0, 0.0]
+    surface: "rough"
+    color: [0.5, 0.5, 0.5]
+    euler: [0.0, 0.0, 90.0]
+
+objects:
+  - type: "mesh"
+    name: "Plano Cartesiano"
+    file: "assets/props/grid_plane_1m.obj"
+    scale: 1.0
+    pos: [0.0, 0.0, 0.701]
+    euler: [0.0, 0.0, 0.0]
+    fixed: true
+    convexify: false
+    surface: "smooth"
+    texture: "assets/props/grid_plane_1m.png"
+
+  - type: "box"
+    size: [0.04, 0.04, 0.04]
+    pos: [0.0, 0.25, 0.75]
+    surface: "rough"
+    color: [0.9, 0.8, 0.1]
+    name: "Cubo A"
+
+  - type: "box"
+    size: [0.04, 0.04, 0.04]
+    pos: [0.0, 0.15, 0.75]
+    surface: "rough"
+    color: [0.9, 0.1, 0.1]
+    name: "Cubo R"
+
+  - type: "box"
+    size: [0.04, 0.04, 0.04]
+    pos: [0.0, 0.05, 0.75]
+    surface: "rough"
+    color: [0.1, 0.8, 0.3]
+    name: "Cubo G"
+
+  - type: "box"
+    size: [0.04, 0.04, 0.04]
+    pos: [0.0, -0.05, 0.75]
+    surface: "rough"
+    color: [0.1, 0.1, 0.9]
+    name: "Cubo B"
+
+stream_camera:
+  pos: [1.0, 1.0, 1.5]
+  lookat: [0.0, 0.0, 0.40]
+  res: [640, 480]
