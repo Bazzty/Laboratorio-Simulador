@@ -1,0 +1,12 @@
+[project]
+name = "lab10-manito"
+version = "0.1.0"
+description = "Lab 10 - Agente manito"
+requires-python = ">=3.12"
+dependencies = [
+    "pyperplan>=2.1",
+    "manito-api",
+]
+
+[tool.uv.sources]
+manito-api = { path = "../py-api" }

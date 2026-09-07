@@ -1,0 +1,37 @@
+(define (problem torre-simple)
+  (:domain manito)
+
+  (:objects
+    cube1 cube2 cube3 cyl1 - item
+    zoneA zoneB zoneC zoneD - zone
+  )
+
+  ; Estado inicial: cada item solo en su propia zona, mano vacia.
+  (:init
+    (at cube1 zoneA)
+    (at cube2 zoneB)
+    (at cube3 zoneC)
+    (at cyl1 zoneD)
+
+    (clear cube1)
+    (clear cube2)
+    (clear cube3)
+    (clear cyl1)
+
+    (hand-empty)
+
+    ; propiedad: los cubos admiten peso encima, el cilindro no.
+    (stackable cube1)
+    (stackable cube2)
+    (stackable cube3)
+  )
+
+  ; Meta: armar una torre cube1 encima de cube2 encima de cube3.
+  ; El cilindro no participa (no se puede apilar sobre el, es una restriccion fisica).
+  (:goal
+    (and
+      (on cube2 cube3)
+      (on cube1 cube2)
+    )
+  )
+)

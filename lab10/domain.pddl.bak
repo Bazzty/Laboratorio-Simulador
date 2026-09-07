@@ -1,0 +1,86 @@
+(define (domain manito)
+
+    (:requirements :strips :typing)
+
+    (:types
+      item   ; algo que el brazo puede tomar: un cubo, un cilindro, etc.
+      zone   ; una posición fija sobre la mesa donde puede apoyarse un item
+    )
+
+    (:predicates
+      (at ?o - item ?z - zone)      ; el item ?o está apoyado en la zona ?z
+      (zone-free ?z - zone)         ; la zona ?z no tiene ningún item apoyado en ella
+      (clear ?o - item)             ; el item ?o no tiene nada encima
+      (hand-empty)                  ; la pinza está vacía
+      (holding ?o - item)           ; la pinza sostiene el item ?o
+      (on ?x - item ?y - item)      ; el item ?x está encima del item ?y
+      (stackable ?o - item)         ; se puede apoyar algo encima de ?o sin que se caiga
+    )
+
+    ; tomar un item que está apoyado en una zona de la mesa
+    (:action pick-up
+        :parameters (?o - item ?z - zone)
+        :precondition (and
+          (hand-empty)
+          (at ?o ?z)
+          (clear ?o)
+        )
+        :effect (and
+          (not (hand-empty))
+          (not (at ?o ?z))
+          (not (clear ?o))
+          (holding ?o)
+          (zone-free ?z)
+        )
+    )
+
+    ; dejar un item sostenido sobre una zona libre de la mesa
+    (:action put-down
+        :parameters (?o - item ?z - zone)
+        :precondition (and
+          (holding ?o)
+          (zone-free ?z)
+        )
+        :effect (and
+          (not (holding ?o))
+          (not (zone-free ?z))
+          (hand-empty)
+          (at ?o ?z)
+          (clear ?o)
+        )
+    )
+
+    ; poner ?x encima de ?y (?y debe admitir cosas encima: restricción física)
+    (:action stack
+        :parameters (?x - item ?y - item)
+        :precondition (and
+          (holding ?x)
+          (clear ?y)
+          (stackable ?y)
+        )
+        :effect (and
+          (not (holding ?x))
+          (not (clear ?y))
+          (on ?x ?y)
+          (clear ?x)
+          (hand-empty)
+        )
+    )
+
+    ; sacar ?x de encima de ?y
+    (:action unstack
+        :parameters (?x - item ?y - item)
+        :precondition (and
+          (on ?x ?y)
+          (hand-empty)
+          (clear ?x)
+        )
+        :effect (and
+          (not (on ?x ?y))
+          (not (hand-empty))
+          (not (clear ?x))
+          (holding ?x)
+          (clear ?y)
+        )
+    )
+  )
