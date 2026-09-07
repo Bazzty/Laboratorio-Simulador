@@ -1,0 +1,4 @@
+(pick-up g zona-g)
+(stack g b)
+(pick-up a zona-a)
+(stack a r)
