@@ -1,3 +1,4 @@
+# Escenario para lab10/problems/problem_6.pddl
 viewer:
   camera_pos: [1.5, 1.5, 1.5]
   camera_lookat: [0.0, 0.0, 0.40]
@@ -23,10 +24,9 @@ props:
   - name: "Mesa Patas"
     urdf_path: "assets/props/table_legs.urdf"
     position: [0.0, 0.0, -0.315]
-    euler: [0.0, 0.0, 0.0]
+    euler: [0.0, 0.0, 90.0]
     surface: "rough"
     color: [0.5, 0.5, 0.5]
-    euler: [0.0, 0.0, 90.0]
 
 objects:
   - type: "mesh"
@@ -40,35 +40,43 @@ objects:
     surface: "smooth"
     texture: "assets/props/grid_plane_1m.png"
 
+  # item A - zona-a (init: at A zona-a) -- j1=-60, j3=30, z=-10
   - type: "box"
-    size: [0.04, 0.04, 0.04]
-    pos: [0.0, 0.25, 0.75]
-    surface: "rough"
-    color: [0.9, 0.8, 0.1]
     name: "Cubo A"
-
-  - type: "box"
     size: [0.04, 0.04, 0.04]
-    pos: [0.0, 0.15, 0.75]
+    pos: [0.264, 0.283, 0.72]
     surface: "rough"
-    color: [0.9, 0.1, 0.1]
+    color: [1.0, 0.2, 0.2]
+
+  # item R - zona-r (init: at R zona-r) -- j1=-30, j3=30, z=-10
+  - type: "box"
     name: "Cubo R"
-
-  - type: "box"
     size: [0.04, 0.04, 0.04]
-    pos: [0.0, 0.05, 0.75]
+    pos: [0.114, 0.383, 0.72]
     surface: "rough"
-    color: [0.1, 0.8, 0.3]
+    color: [0.2, 0.2, 1.0]
+
+  # item G - zona-g (init: at G zona-g) -- j1=0, j3=30, z=-10
+  - type: "box"
     name: "Cubo G"
-
-  - type: "box"
     size: [0.04, 0.04, 0.04]
-    pos: [0.0, -0.05, 0.75]
+    pos: [-0.068, 0.396, 0.72]
     surface: "rough"
-    color: [0.1, 0.1, 0.9]
+    color: [0.2, 1.0, 0.3]
+
+  # item B - zona-b (init: at B zona-b) -- j1=30, j3=30, z=-10
+  - type: "box"
     name: "Cubo B"
+    size: [0.04, 0.04, 0.04]
+    pos: [-0.231, 0.316, 0.72]
+    surface: "rough"
+    color: [1.0, 0.9, 0.2]
 
 stream_camera:
   pos: [1.0, 1.0, 1.5]
   lookat: [0.0, 0.0, 0.40]
   res: [640, 480]
+
+objectives:
+  - id: "apilar_torre_completa"
+    description: "Apila A sobre R, R sobre G, y G sobre B."
