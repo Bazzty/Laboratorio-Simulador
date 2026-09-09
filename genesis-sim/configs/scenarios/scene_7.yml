@@ -1,0 +1,82 @@
+# Escenario para lab10/problems/problem_7.pddl
+viewer:
+  camera_pos: [1.5, 1.5, 1.5]
+  camera_lookat: [0.0, 0.0, 0.40]
+
+environment:
+  plane: true
+  gravity: [0.0, 0.0, -9.81]
+
+robots:
+  - name: "Manito"
+    urdf_path: "assets/robots/manito/manito.urdf"
+    position: [0.0, 0.0, 0.7]
+    fixed: true
+    is_main: true
+
+props:
+  - name: "Mesa Tablero"
+    urdf_path: "assets/props/table_top.urdf"
+    position: [0.0, 0.0, -0.315]
+    euler: [0.0, 0.0, 90.0]
+    surface: "smooth"
+
+  - name: "Mesa Patas"
+    urdf_path: "assets/props/table_legs.urdf"
+    position: [0.0, 0.0, -0.315]
+    euler: [0.0, 0.0, 90.0]
+    surface: "rough"
+    color: [0.5, 0.5, 0.5]
+
+objects:
+  - type: "mesh"
+    name: "Plano Cartesiano"
+    file: "assets/props/grid_plane_1m.obj"
+    scale: 1.0
+    pos: [0.0, 0.0, 0.701]
+    euler: [0.0, 0.0, 0.0]
+    fixed: true
+    convexify: false
+    surface: "smooth"
+    texture: "assets/props/grid_plane_1m.png"
+
+  # item A - zona-a (init: at A zona-a) -- j1=-60, j3=30, z=-10
+  - type: "box"
+    name: "Cubo A"
+    size: [0.04, 0.04, 0.04]
+    pos: [0.264, 0.283, 0.72]
+    surface: "rough"
+    color: [1.0, 0.2, 0.2]
+
+  # item R - zona-r (init: at R zona-r) -- j1=-30, j3=30, z=-10
+  - type: "box"
+    name: "Cubo R"
+    size: [0.04, 0.04, 0.04]
+    pos: [0.114, 0.383, 0.72]
+    surface: "rough"
+    color: [0.2, 0.2, 1.0]
+
+  # item G - zona-g (init: at G zona-g) -- j1=0, j3=30, z=-10
+  - type: "box"
+    name: "Cubo G"
+    size: [0.04, 0.04, 0.04]
+    pos: [-0.068, 0.396, 0.72]
+    surface: "rough"
+    color: [0.2, 1.0, 0.3]
+
+  # item B - zona-b (init: at B zona-b) -- j1=30, j3=30, z=-10
+  - type: "box"
+    name: "Cubo B"
+    size: [0.04, 0.04, 0.04]
+    pos: [-0.231, 0.316, 0.72]
+    surface: "rough"
+    color: [1.0, 0.9, 0.2]
+
+stream_camera:
+  pos: [1.0, 1.0, 1.5]
+  lookat: [0.0, 0.0, 0.40]
+  res: [640, 480]
+
+objectives:
+  - id: "dos_torres_de_dos"
+    description: "Apila A sobre R y G sobre B (goal: on A R, on G B)."
