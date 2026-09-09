@@ -32,7 +32,7 @@ ZONE_J1 = {
 J3 = 30
 Z_TRAVEL = 10  # altura segura para desplazarse entre zonas
 Z_TABLE = -10  # profundidad para alcanzar un cubo apoyado en la mesa
-Z_STACK = -6   # profundidad para alcanzar/soltar un cubo apoyado sobre otro (+4cm)
+CUBE_H = 4     # alto de un cubo (cm): cada nivel de apilado sube el punto de contacto esto
 
 
 def parse_init(problem_path):
@@ -43,13 +43,15 @@ def parse_init(problem_path):
     plan (cierto para los problemas 1-5).
     """
     text = open(problem_path, encoding="utf-8").read()
+    init_match = re.search(r"\(:init(.*?)\)\s*\(:goal", text, re.IGNORECASE | re.DOTALL)
+    init_text = init_match.group(1) if init_match else text
     at_map = {
         k.lower(): v.lower()
-        for k, v in re.findall(r"\(at\s+(\S+)\s+(\S+)\)", text, re.IGNORECASE)
+        for k, v in re.findall(r"\(at\s+(\S+)\s+([^\s()]+)\)", init_text, re.IGNORECASE)
     }
     on_map = {
         k.lower(): v.lower()
-        for k, v in re.findall(r"\(on\s+(\S+)\s+(\S+)\)", text, re.IGNORECASE)
+        for k, v in re.findall(r"\(on\s+(\S+)\s+([^\s()]+)\)", init_text, re.IGNORECASE)
     }
 
     def zone_of(item):
@@ -62,7 +64,13 @@ def parse_init(problem_path):
             item = on_map[item]
         return at_map[item]
 
-    return zone_of
+    # cuantos cubos hay apoyados en cada zona al empezar (1 por cada item en
+    # el :init, 0 para zonas vacias como zona-derecha).
+    zone_height = {}
+    for zone in at_map.values():
+        zone_height[zone] = zone_height.get(zone, 0) + 1
+
+    return zone_of, zone_height
 
 
 def parse_action(op_name):
@@ -75,40 +83,62 @@ def move_to(arm, zone, z):
     arm.move_joints(ZONE_J1[zone], J3, 0, z)
 
 
-def run_plan(arm, plan, zone_of):
+def run_plan(arm, plan, zone_of, zone_height):
+    # zona actual de cada item, actualizada a medida que corre el plan (zone_of
+    # solo conoce el :init, y algunos problemas mueven la base antes de apilar).
+    item_zone = {}
+    zone_height = dict(zone_height)
+
+    def current_zone(item):
+        return item_zone.get(item, zone_of(item))
+
+    def depth_at(zone, level):
+        """Profundidad para tocar el nivel `level` (0 = mesa) de una zona."""
+        return Z_TABLE + level * CUBE_H
+
     for step, op in enumerate(plan, 1):
         name, args = parse_action(op.name)
         print(f"  {step}. {op.name}")
 
         if name == "pick-up":
-            _, zone = args
+            item, zone = args
+            z = depth_at(zone, zone_height.get(zone, 1) - 1)
             move_to(arm, zone, Z_TRAVEL)
-            move_to(arm, zone, Z_TABLE)
+            move_to(arm, zone, z)
             arm.gripper(True)
             move_to(arm, zone, Z_TRAVEL)
+            zone_height[zone] = zone_height.get(zone, 1) - 1
 
         elif name == "put-down":
-            _, zone = args
+            item, zone = args
+            z = depth_at(zone, zone_height.get(zone, 0))
             move_to(arm, zone, Z_TRAVEL)
-            move_to(arm, zone, Z_TABLE)
+            move_to(arm, zone, z)
             arm.gripper(False)
             move_to(arm, zone, Z_TRAVEL)
+            zone_height[zone] = zone_height.get(zone, 0) + 1
+            item_zone[item] = zone
 
         elif name == "stack":
-            _, base = args
-            zone = zone_of(base)
+            item, base = args
+            zone = current_zone(base)
+            z = depth_at(zone, zone_height.get(zone, 0))
             move_to(arm, zone, Z_TRAVEL)
-            move_to(arm, zone, Z_STACK)
+            move_to(arm, zone, z)
             arm.gripper(False)
             move_to(arm, zone, Z_TRAVEL)
+            zone_height[zone] = zone_height.get(zone, 0) + 1
+            item_zone[item] = zone
 
         elif name == "unstack":
-            _, base = args
-            zone = zone_of(base)
+            item, base = args
+            zone = current_zone(base)
+            z = depth_at(zone, zone_height.get(zone, 1) - 1)
             move_to(arm, zone, Z_TRAVEL)
-            move_to(arm, zone, Z_STACK)
+            move_to(arm, zone, z)
             arm.gripper(True)
             move_to(arm, zone, Z_TRAVEL)
+            zone_height[zone] = zone_height.get(zone, 1) - 1
 
         else:
             raise ValueError(f"Accion desconocida: {name}")
@@ -132,12 +162,12 @@ def main():
         sys.exit(1)
 
     print(f"Plan encontrado en {t_plan:.3f}s ({len(plan)} pasos):")
-    zone_of = parse_init(problem_path)
+    zone_of, zone_height = parse_init(problem_path)
     arm = ManitoArm(url)
     arm.home()
 
     t0 = time.time()
-    run_plan(arm, plan, zone_of)
+    run_plan(arm, plan, zone_of, zone_height)
     t_exec = time.time() - t0
 
     print(f"\nPlanificacion: {t_plan:.3f}s | Ejecucion: {t_exec:.3f}s | Total: {t_plan + t_exec:.3f}s")
